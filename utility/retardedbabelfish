@@ -20,14 +20,18 @@ langselect () {
 echo "  1. English"
 # Spanish
 echo "  2. español"
+# Russian
+echo "  3. Русский"
 # German
-echo "  3. Deutsch"
+echo "  4. Deutsch"
+# Dutch
+echo "  5. Nederlands"
 # Brazilian Portuguese
-echo "  4. Brazilian Portuguese"
-echo "  5. None of the above"
+echo "  6. Brazilian Portuguese"
+echo "  7. None of the above"
 read answer
 
-if [ ! "$answer" ] || ( echo $answer | grep -q [A-Za-z] ) || [ $answer -gt "5" ]; then
+if [ ! "$answer" ] || ( echo $answer | grep -q [A-Za-z] ) || [ $answer -gt "7" ]; then
 	echo ""
 	echo $notproperselection
 	read -p  $entertocontinue done
@@ -50,23 +54,39 @@ if [ $answer == "2" ]; then
 	read -p "$entertocontinue" done
 fi
 
-# German
+# Russian
 if [ $answer == "3" ]; then
+	echo "ru" > $LOCAL/config/language
+	echo ""
+	echo $langsaved
+	read -p "$entertocontinue" done
+fi
+
+# German
+if [ $answer == "4" ]; then
 	echo "de" > $LOCAL/config/language
 	echo ""
 	echo $langsaved
 	read -p "$entertocontinue" done
 fi
 
+# Dutch
+if [ $answer == "5" ]; then
+	echo "nl" > $LOCAL/config/language
+	echo ""
+	echo $langsaved
+	read -p "$entertocontinue" done
+fi
+
 # Brazilian Portuguese
-if [ $answer == "4" ]; then
+if [ $answer == "6" ]; then
 	echo "ptbr" > $LOCAL/config/language
 	echo ""
 	echo $langsaved
 	read -p "$entertocontinue" done
 fi
 
-if [ $answer == "5" ]; then
+if [ $answer == "7" ]; then
 	clear
 
 	echo "The Language You Want Is Not Supported!"
@@ -160,6 +180,33 @@ elif ( echo $LANG | grep -q "es_" ); then
 #		read -p "$entertocontinue" done
 #		initlang
 #	fi
+# Russian
+elif ( echo $LANG | grep -q "ru_" ); then
+	langsaved=$( echo "Установлен русский язык" )
+	notproperselection=$( echo "Вы не сделали выбор, попытайтесь ещё!" )
+	entertocontinue=$( echo "Нажмите ввод для продолжения: " )
+
+	clear
+	echo "Мы обнаружили, что Ваша система установлена на русский язык"
+	echo "Хотите, чтобы rom kitchen работала с этим языком?"
+
+	read -p "да/нет?" answer
+
+	if [ "$answer" == "да" ] || [ "$answer" == "д" ]; then
+		echo "ru" > $LOCAL/config/language
+		echo ""
+		echo $langsaved
+		read -p "$entertocontinue" done
+	elif [ "$answer" == "нет" ] || [ "$answer" == "н" ]; then
+		echo ""
+		echo "Какой язык Вы хотите использовать вместо этого?"
+		langselect
+	else
+		echo ""
+		echo $notproperselection
+		read -p "$entertocontinue" done
+		initlang
+	fi
 # German
 elif ( echo $LANG | grep -q "de_" ); then
 	langsaved=$( echo "Die Sprache Deutsch wurde gespeichert" )
@@ -180,6 +227,33 @@ elif ( echo $LANG | grep -q "de_" ); then
 	elif [ "$answer" == "nein" ] || [ "$answer" == "n" ]; then
 		echo ""
 		echo "Welche Sprache möchten Sie stattdessen verwenden?"
+		langselect
+	else
+		echo ""
+		echo $notproperselection
+		read -p "$entertocontinue" done
+		initlang
+	fi
+# Dutch
+elif ( echo $LANG | grep -q "nl_" ); then
+	langsaved=$( echo "Taal bewaard als Nederlands" )
+	notproperselection=$( echo "Je maakte geen geldige selectie, probeer opnieuw!" )
+	entertocontinue=$( echo "Press Enter to continue: " )
+
+	clear
+	echo "We hebben gedetecteerd dat je systeem in het Nederlands is"
+	echo "Is dit de taal die je wil gebruiken in de rom keuken?"
+
+	read -p "ja/nee?" answer
+
+	if [ "$answer" == "ja" ] || [ "$answer" == "j" ]; then
+		echo "nl" > $LOCAL/config/language
+		echo ""
+		echo $langsaved
+		read -p "$entertocontinue" done
+	elif [ "$answer" == "nee" ] || [ "$answer" == "n" ]; then
+		echo ""
+		echo "Welke taal wil je in de plaats gebruiken?"
 		langselect
 	else
 		echo ""
@@ -339,6 +413,7 @@ if [ ! "$INIT" ]; then
 fi
 
 if ( ! find $LOCAL/config/language &> /dev/null ); then
+	mkdir -p $LOCAL/config
 	initlang
 fi
 
@@ -352,9 +427,15 @@ elif ( cat $LOCAL/config/language | grep -q "es" ); then
 ## NOT ACTIVE
 elif ( cat $LOCAL/config/language | grep -q "fr" ); then
 	. $LOCAL/translation/europeanpilchard
+# Russian
+elif ( cat $LOCAL/config/language | grep -q "ru" ); then
+	. $LOCAL/translation/whitefish
 # German
 elif ( cat $LOCAL/config/language | grep -q "de" ); then
 	. $LOCAL/translation/rabbitfish
+# Dutch
+elif ( cat $LOCAL/config/language | grep -q "nl" ); then
+	. $LOCAL/translation/chubmackerel
 # Brazilian Portuguese
 elif ( cat $LOCAL/config/language | grep -q "ptbr" ); then
 	. $LOCAL/translation/pirarucu
